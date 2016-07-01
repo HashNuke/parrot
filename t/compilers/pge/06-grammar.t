@@ -142,14 +142,16 @@ EOF_SIMPLE_GRAMMAR
                   test_name    = 'Simple::Test' . test_num_str
 
     $P0 = split '::', test_name
+    $S0 = pop $P0
     .local pmc parser
-               parser = get_hll_global $P0, 'main'
+               parser = get_hll_global $P0, $S0
+               parser = find_method parser, 'main'
 
   next_target:
     .local string target
                   target = shift targets
 
-    ok = '_match_expr'( parser, target )
+    ok = '_match_expr'( parser, target, test_name )
     test.'ok'( ok, description )
     $I0 = targets
     if $I0 goto next_target
@@ -172,6 +174,7 @@ EOF_SIMPLE_GRAMMAR
 .sub '_match_expr'
     .param pmc    parser
     .param string expr
+    .param string grammar
 
     .local int ok
     .local string result, test_name, test_num_str
@@ -182,7 +185,7 @@ EOF_SIMPLE_GRAMMAR
     load_bytecode 'PGE/Perl6Grammar.pbc'
 
     ok        = 1
-    match     = parser(expr)
+    match     = parser(expr, 'grammar' => grammar)
     result    = match
 
     if result == expr goto match_ok
